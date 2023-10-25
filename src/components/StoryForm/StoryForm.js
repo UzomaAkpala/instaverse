@@ -1,23 +1,49 @@
-import React from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Card, Form, Input, Typography, Button } from "antd";
 import FileBase64 from "react-file-base64";
 import styles from "./styles";
-import { createStory } from "../../actions/stories";
+import { createStory, updateStory } from "../../actions/stories";
 
 const { Title } = Typography;
 
-function StoryForm() {
+function StoryForm({ selectedId, setSelectedId }) {
+  const story = useSelector((state) =>
+    selectedId ? state.stories.find((story) => story._id === selectedId) : null
+  );
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
-  const onsubmit = (formValues) => {
-    dispatch(createStory(formValues));
+  const onSubmit = (formValues) => {
+    selectedId
+      ? dispatch(updateStory(selectedId, formValues))
+      : dispatch(createStory(formValues));
+    reset();
   };
+
+  useEffect(() => {
+    if (story) {
+      form.setFieldValue(story);
+    }
+  }, [story, form]);
+
+  const reset = () => {
+    form.resetFields();
+    setSelectedId(null);
+  };
+
+  function refreshPage() {
+    window.location.reload(false);
+  }
+
   return (
     <Card
       style={styles.formCard}
-      title={<Title level={4} style={styles.formTitle}></Title>}
+      title={
+        <Title level={4} style={styles.formTitle}>
+          {selectedId ? "Editing" : "Share"} a story
+        </Title>
+      }
     >
       <Form
         form={form}
@@ -25,9 +51,13 @@ function StoryForm() {
         wrapperCol={{ span: 16 }}
         layout="horizontal"
         size="middle"
-        onFinish={onsubmit}
+        onFinish={onSubmit}
       >
-        <Form.Item name="username" label="username">
+        <Form.Item
+          name="username"
+          label="Username"
+          rules={[{ required: true }]}
+        >
           <Input allowClear />
         </Form.Item>
 
@@ -35,7 +65,7 @@ function StoryForm() {
           <Input.TextArea allowClear autoSize={{ minRows: 2, maxRows: 6 }} />
         </Form.Item>
 
-        <Form.Item name="tags" label="Tags" rules={[{ required: true }]}>
+        <Form.Item name="tags" label="Tags">
           <Input.TextArea allowClear autoSize={{ minRows: 2, maxRows: 6 }} />
         </Form.Item>
 
@@ -57,10 +87,29 @@ function StoryForm() {
             offset: 6,
           }}
         >
-          <Button type="primary" block htmlType="submit">
+          <Button type="primary" block htmlType="submit" onClick={refreshPage}>
             Share
           </Button>
         </Form.Item>
+
+        {!selectedId ? null : (
+          <Form.Item
+            wrapperCol={{
+              span: 16,
+              offset: 6,
+            }}
+          >
+            <Button
+              type="primary"
+              block
+              htmlType="button"
+              danger
+              onClick={reset}
+            >
+              Discard
+            </Button>
+          </Form.Item>
+        )}
       </Form>
     </Card>
   );

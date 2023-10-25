@@ -11,7 +11,7 @@ function App() {
   return (
     <Layout style={styles.layout}>
       <Header style={styles.header}>
-        <Image style={styles.image} width={45} preview={false} src={Logo} />;
+        <Image style={styles.image} width={45} preview={false} src={Logo} />
         &nbsp;
         <Title style={styles.title}>Instaverse</Title>
       </Header>
