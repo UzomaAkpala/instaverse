@@ -8,15 +8,8 @@ const storyReducer = (state = [], action) => {
       return state.map((story) =>
         story._id === action.payload._id ? action.payload : story
       );
-
     case "DELETE_STORY":
       return state.filter((story) => story._id !== action.payload);
-
-    case "LIKE_STORY":
-      return state.map((story) =>
-        story._id === action.payload._id ? action.payload : story
-      );
-
     default:
       return state;
   }
